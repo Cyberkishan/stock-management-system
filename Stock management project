@@ -1,0 +1,131 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+struct StockItem {
+    string name;
+    int quantity;
+    float price;
+};
+
+void displayMenu() {
+    cout << "Stock Management System" << endl;
+    cout << "1. Add Item" << endl;
+    cout << "2. Update Item" << endl;
+    cout << "3. Delete Item" << endl;
+    cout << "4. Display Stock" << endl;
+    cout << "5. Exit" << endl;
+    cout << "Enter your choice: ";
+}
+
+void addItem(vector<StockItem>& stock) {
+    StockItem item;
+    cout << "Enter item name: ";
+    cin >> item.name;
+    cout << "Enter quantity: ";
+    cin >> item.quantity;
+    cout << "Enter price: ";
+    cin >> item.price;
+    stock.push_back(item);
+    cout << "Item added successfully!" << endl;
+}
+
+void updateItem(vector<StockItem>& stock) {
+    string itemName;
+    cout << "Enter item name to update: ";
+    cin >> itemName;
+    for (StockItem& item : stock) {
+        if (item.name == itemName) {
+            cout << "Enter new quantity: ";
+            cin >> item.quantity;
+            cout << "Enter new price: ";
+            cin >> item.price;
+            cout << "Item updated successfully!" << endl;
+            return;
+        }
+    }
+    cout << "Item not found!" << endl;
+}
+
+void deleteItem(vector<StockItem>& stock) {
+    string itemName;
+    cout << "Enter item name to delete: ";
+    cin >> itemName;
+    for (auto it = stock.begin(); it != stock.end(); ++it) {
+        if (it->name == itemName) {
+            it = stock.erase(it);
+            cout << "Item deleted successfully!" << endl;
+            return;
+        }
+    }
+    cout << "Item not found!" << endl;
+}
+
+void displayStock(const vector<StockItem>& stock) {
+    cout << "Stock:" << endl;
+    for (const StockItem& item : stock) {
+        cout << "Name: " << item.name << ", Quantity: " << item.quantity << ", Price: " << item.price << endl;
+    }
+}
+
+void saveStock(const vector<StockItem>& stock, const string& filename) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open file for writing!" << endl;
+        return;
+    }
+    for (const StockItem& item : stock) {
+        file << item.name << " " << item.quantity << " " << item.price << endl;
+    }
+    file.close();
+}
+
+void loadStock(vector<StockItem>& stock, const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open file for reading!" << endl;
+        return;
+    }
+    StockItem item;
+    while (file >> item.name >> item.quantity >> item.price) {
+        stock.push_back(item);
+    }
+    file.close();
+}
+
+int main() {
+    vector<StockItem> stock;
+    string filename = "stock.txt";
+    loadStock(stock, filename);
+
+    int choice;
+    do {
+        displayMenu();
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                addItem(stock);
+                break;
+            case 2:
+                updateItem(stock);
+                break;
+            case 3:
+                deleteItem(stock);
+                break;
+            case 4:
+                displayStock(stock);
+                break;
+            case 5:
+                saveStock(stock, filename);
+                cout << "Exiting program." << endl;
+                break;
+            default:
+                cout << "Invalid choice! Please enter a number between 1 and 5." << endl;
+        }
+    } while (choice != 5);
+
+    return 0;
+}
